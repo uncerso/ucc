@@ -1,6 +1,6 @@
 #pragma once
 #include <filesystem>
-#include "UniqueDir.hpp"
+#include "Utils.hpp"
 
 class TCompilerBase {
 public:
@@ -24,4 +24,18 @@ class THaskellCompiler : public TCompilerBase {
 
 public:
     THaskellCompiler(path_t const & path);
+};
+
+class TCCompiler : public TCompilerBase {
+    path_t CompileHandler(path_t const & file) override;
+
+public:
+    TCCompiler(path_t const & path);
+};
+
+class TCPPCompiler : public TCompilerBase {
+    path_t CompileHandler(path_t const & file) override;
+
+public:
+    TCPPCompiler(path_t const & path);
 };

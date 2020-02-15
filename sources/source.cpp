@@ -1,32 +1,30 @@
 #include <iostream>
-#include "UniqueDir.hpp"
+#include <fstream>
+#include <algorithm>
+#include "Utils.hpp"
 #include "Compilers.hpp"
 
 using namespace std;
 namespace fs = filesystem;
 
-namespace NCompilers {
-
-int Haskell (string const & name) {
-    using namespace string_literals;
-    filesystem::path file(name);
-    
-    string command = "ghc -dynamic "s + name + " && rm hs.hi hs.o"; 
-    return system(command.c_str());
-}
-
-}
-
 enum class ELangs {
-    undef, c, cpp, haskell, bash, python
+    undef, c, cpp, haskell
 };
 
-ELangs LangDefiner(string const & path_name) {
-    filesystem::path path(path_name);
-    if (path.has_extension() && path.extension() == "hs") {
-        return ELangs::haskell;
-    }
-    return ELangs::undef;
+ELangs LangDefiner(fs::path const & file) {
+    system(("file -b " + file.string() + " >predicted_language").c_str());
+    ifstream inp("predicted_language");
+    string result;
+    getline(inp, result);
+
+    if (result.find("C source") != string::npos)
+        return ELangs::c;
+
+    if (result.find("C++ source") != string::npos)
+        return ELangs::cpp;
+
+    return ELangs::haskell;
+    // return ELangs::undef;
 }
 
 int main(int argc, char const *argv[]) {
@@ -50,9 +48,18 @@ int main(int argc, char const *argv[]) {
         file_name = fs::canonical(file_name);
 
         TUniqueDir tmp_dir;
+        unique_ptr<TCompilerBase> compiler;
+        {
+            TCWDGuard cwd_guard(tmp_dir.path());
+            switch (LangDefiner(file_name)) {
+                case ELangs::haskell: compiler = make_unique<THaskellCompiler>(tmp_dir.path()); break;
+                case ELangs::c      : compiler = make_unique<TCCompiler>(tmp_dir.path());       break;
+                case ELangs::cpp    : compiler = make_unique<TCPPCompiler>(tmp_dir.path());     break;
+                default: cerr << "unknown language\n"; return 0;                                break;
+            }
+        }
 
-        THaskellCompiler x(tmp_dir.path()); 
-        auto result = x.Compile(file_name);
+        auto result = compiler->Compile(file_name);
 
         if (!result.empty()) {
             auto dist = fs::current_path() / result.filename();
@@ -62,6 +69,8 @@ int main(int argc, char const *argv[]) {
     } catch (exception const & e) {
         cerr << e.what() << '\n';
         return -1;
+    } catch (...) {
+        cerr << "unknown error\n";
     }
     return 0;
 }

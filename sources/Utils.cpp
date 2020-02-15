@@ -1,4 +1,4 @@
-#include "UniqueDir.hpp"
+#include "Utils.hpp"
 
 namespace fs = std::filesystem;
 
@@ -18,4 +18,14 @@ TUniqueDir::~TUniqueDir() {
 
 auto TUniqueDir::path() const noexcept -> path_t const & {
     return Path;
+}
+
+TCWDGuard::TCWDGuard(path_t const & wishes_path) 
+    : Path_to_restore(fs::current_path())
+{
+    fs::current_path(wishes_path);
+}
+
+TCWDGuard::~TCWDGuard() {
+    fs::current_path(Path_to_restore);
 }

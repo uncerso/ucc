@@ -1,4 +1,4 @@
-FILES:=sources/source.cpp sources/UniqueDir.cpp sources/Compilers.cpp
+FILES:=sources/source.cpp sources/Utils.cpp sources/Compilers.cpp
 FLAGS:=-std=c++17
 
 build:
