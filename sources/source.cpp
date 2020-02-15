@@ -8,7 +8,7 @@ using namespace std;
 namespace fs = filesystem;
 
 enum class ELangs {
-    undef, c, cpp, haskell
+    undef, c, cpp, haskell, paskal
 };
 
 ELangs LangDefiner(fs::path const & file) {
@@ -23,8 +23,7 @@ ELangs LangDefiner(fs::path const & file) {
     if (result.find("C++ source") != string::npos)
         return ELangs::cpp;
 
-    return ELangs::haskell;
-    // return ELangs::undef;
+    return ELangs::undef;
 }
 
 int main(int argc, char const *argv[]) {
@@ -53,9 +52,10 @@ int main(int argc, char const *argv[]) {
             TCWDGuard cwd_guard(tmp_dir.path());
             switch (LangDefiner(file_name)) {
                 case ELangs::haskell: compiler = make_unique<THaskellCompiler>(tmp_dir.path()); break;
-                case ELangs::c      : compiler = make_unique<TCCompiler>(tmp_dir.path());       break;
-                case ELangs::cpp    : compiler = make_unique<TCPPCompiler>(tmp_dir.path());     break;
-                default: cerr << "unknown language\n"; return 0;                                break;
+                case ELangs::c      : compiler = make_unique<TCompilerComposer<TCCompiler, TCPPCompiler>>(tmp_dir.path()); break;
+                case ELangs::cpp    : compiler = make_unique<TCompilerComposer<TCPPCompiler, TCCompiler>>(tmp_dir.path()); break;
+                case ELangs::paskal : compiler = make_unique<TPaskalCompiler>(tmp_dir.path());  break;
+                default: compiler = make_unique<TCompilerComposer<THaskellCompiler, TPaskalCompiler, TFortranCompiler, TCPPCompiler, TCCompiler>>(tmp_dir.path()); break;
             }
         }
 

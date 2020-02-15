@@ -1,13 +1,16 @@
 #include "Compilers.hpp"
 #include <utility>
 #include <string>
+#include <iostream>
 
 using namespace std;
 namespace fs = filesystem;
 
 namespace {
+    constexpr auto Result_file_name = "out";
+
     fs::path MakeSymlink(fs::path const & file, char const * wishes_extension) {
-        auto sym_path = fs::current_path() / ("out."s + wishes_extension);
+        auto sym_path = fs::current_path() / (Result_file_name + "."s + wishes_extension);
         fs::create_symlink(file, sym_path);
         return sym_path;
     }
@@ -17,9 +20,18 @@ TCompilerBase::TCompilerBase(path_t && path)
     : WorkDir(move(path))
 {}
 
-auto TCompilerBase::Compile(path_t const & file) -> path_t {
+auto TCompilerBase::Compile(path_t const & file) const -> path_t {
+    cout << "Trying to compile as " << WorkDir.path().filename().c_str() << endl;
     TCWDGuard cwd_guard(WorkDir.path());
-    auto result_path = CompileHandler(file);
+    path_t result_path;
+    auto command = CompileHandler(file) + " &> /dev/null";
+    if (!system(command.c_str())) {
+        result_path = fs::current_path() / Result_file_name;
+        cout << "Success" << endl;
+    } else {
+        cout << "Failed\n" << endl;
+    }
+
     return result_path;
 }
 
@@ -27,43 +39,43 @@ THaskellCompiler::THaskellCompiler(path_t const & path)
     : TCompilerBase(path / "haskell")
 {}
 
-auto THaskellCompiler::CompileHandler(path_t const & file) -> path_t {
-    using namespace string_literals;
-    path_t result_file;
+string THaskellCompiler::CompileHandler(path_t const & file) const {
     auto new_file = MakeSymlink(file, "hs");
-    string command = "ghc -dynamic "s + new_file.filename().c_str();
-    if (!system(command.c_str()))
-        result_file = fs::current_path() / new_file.stem(); // remove extension
-
-    return result_file;
+    return "ghc -dynamic -O2 "s + new_file.filename().c_str() + " -o "s + Result_file_name;
 }
 
 TCCompiler::TCCompiler(path_t const & path) 
     : TCompilerBase(path / "C")
 {}
 
-auto TCCompiler::CompileHandler(path_t const & file) -> path_t {
-    using namespace string_literals;
-    path_t result_file;
+string TCCompiler::CompileHandler(path_t const & file) const {
     auto new_file = MakeSymlink(file, "c");
-    string command = "gcc -std=c11 -O3 "s + new_file.filename().c_str() + " -o "s + new_file.stem().c_str();
-    if (!system(command.c_str()))
-        result_file = fs::current_path() / new_file.stem(); // remove extension
-
-    return result_file;
+    return "gcc -std=c11 -O3 "s + new_file.filename().c_str() + " -o "s + Result_file_name;
 }
 
 TCPPCompiler::TCPPCompiler(path_t const & path) 
     : TCompilerBase(path / "CPP")
 {}
 
-auto TCPPCompiler::CompileHandler(path_t const & file) -> path_t {
-    using namespace string_literals;
-    path_t result_file;
+string TCPPCompiler::CompileHandler(path_t const & file) const {
     auto new_file = MakeSymlink(file, "cpp");
-    string command = "g++ -std=c++11 -O3 "s + new_file.filename().c_str() + " -o "s + new_file.stem().c_str();
-    if (!system(command.c_str()))
-        result_file = fs::current_path() / new_file.stem(); // remove extension
+    return "g++ -std=c++11 -O3 "s + new_file.filename().c_str() + " -o "s + Result_file_name;
+}
 
-    return result_file;
+TPaskalCompiler::TPaskalCompiler(path_t const & path) 
+    : TCompilerBase(path / "paskal")
+{}
+
+string TPaskalCompiler::CompileHandler(path_t const & file) const {
+    auto new_file = MakeSymlink(file, "pas");
+    return "fpc -O3 "s + new_file.filename().c_str() + " -o" + Result_file_name;
+}
+
+TFortranCompiler::TFortranCompiler(path_t const & path) 
+    : TCompilerBase(path / "fortran")
+{}
+
+string TFortranCompiler::CompileHandler(path_t const & file) const {
+    auto new_file = MakeSymlink(file, "f90");
+    return "gfortran -O3 "s + new_file.filename().c_str() + " -o "s + Result_file_name;
 }

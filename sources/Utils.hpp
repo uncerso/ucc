@@ -19,4 +19,3 @@ public:
     TCWDGuard(path_t const & wishes_path);
     ~TCWDGuard();
 };
-
