@@ -8,10 +8,10 @@ using namespace std;
 namespace fs = filesystem;
 
 enum class ELangs {
-    undef, c, cpp, haskell, paskal
+    undef, c, cpp, haskell, pascal, fortran, d
 };
 
-ELangs LangDefiner(fs::path const & file) {
+ELangs LangPrediction(fs::path const & file) {
     system(("file -b " + file.string() + " >predicted_language").c_str());
     ifstream inp("predicted_language");
     string result;
@@ -50,12 +50,10 @@ int main(int argc, char const *argv[]) {
         unique_ptr<TCompilerBase> compiler;
         {
             TCWDGuard cwd_guard(tmp_dir.path());
-            switch (LangDefiner(file_name)) {
-                case ELangs::haskell: compiler = make_unique<THaskellCompiler>(tmp_dir.path()); break;
-                case ELangs::c      : compiler = make_unique<TCompilerComposer<TCCompiler, TCPPCompiler>>(tmp_dir.path()); break;
-                case ELangs::cpp    : compiler = make_unique<TCompilerComposer<TCPPCompiler, TCCompiler>>(tmp_dir.path()); break;
-                case ELangs::paskal : compiler = make_unique<TPaskalCompiler>(tmp_dir.path());  break;
-                default: compiler = make_unique<TCompilerComposer<THaskellCompiler, TPaskalCompiler, TFortranCompiler, TCPPCompiler, TCCompiler>>(tmp_dir.path()); break;
+            switch (LangPrediction(file_name)) {
+                case ELangs::c      : compiler = make_unique<TCompilerComposer<TCCompiler, TCPPCompiler, TDCompiler>>(tmp_dir.path()); break;
+                case ELangs::cpp    : compiler = make_unique<TCompilerComposer<TCPPCompiler, TCCompiler, TDCompiler>>(tmp_dir.path()); break;
+                default: compiler = make_unique<TCompilerComposer<THaskellCompiler, TPascalCompiler, TFortranCompiler, TAdaCompiler, TDCompiler, TCPPCompiler, TCCompiler>>(tmp_dir.path()); break;
             }
         }
 

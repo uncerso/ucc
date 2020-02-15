@@ -62,11 +62,11 @@ string TCPPCompiler::CompileHandler(path_t const & file) const {
     return "g++ -std=c++11 -O3 "s + new_file.filename().c_str() + " -o "s + Result_file_name;
 }
 
-TPaskalCompiler::TPaskalCompiler(path_t const & path) 
-    : TCompilerBase(path / "paskal")
+TPascalCompiler::TPascalCompiler(path_t const & path) 
+    : TCompilerBase(path / "pascal")
 {}
 
-string TPaskalCompiler::CompileHandler(path_t const & file) const {
+string TPascalCompiler::CompileHandler(path_t const & file) const {
     auto new_file = MakeSymlink(file, "pas");
     return "fpc -O3 "s + new_file.filename().c_str() + " -o" + Result_file_name;
 }
@@ -78,4 +78,22 @@ TFortranCompiler::TFortranCompiler(path_t const & path)
 string TFortranCompiler::CompileHandler(path_t const & file) const {
     auto new_file = MakeSymlink(file, "f90");
     return "gfortran -O3 "s + new_file.filename().c_str() + " -o "s + Result_file_name;
+}
+
+TDCompiler::TDCompiler(path_t const & path) 
+    : TCompilerBase(path / "D")
+{}
+
+string TDCompiler::CompileHandler(path_t const & file) const {
+    auto new_file = MakeSymlink(file, "d");
+    return "dmd -O "s + new_file.filename().c_str() + " -of="s + Result_file_name;
+}
+
+TAdaCompiler::TAdaCompiler(path_t const & path) 
+    : TCompilerBase(path / "ada")
+{}
+
+string TAdaCompiler::CompileHandler(path_t const & file) const {
+    auto new_file = MakeSymlink(file, "adb");
+    return "gnat make "s + new_file.filename().c_str();
 }

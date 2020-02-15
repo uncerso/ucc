@@ -41,11 +41,11 @@ public:
     TCPPCompiler(path_t const & path);
 };
 
-class TPaskalCompiler : public TCompilerBase {
+class TPascalCompiler : public TCompilerBase {
     std::string CompileHandler(path_t const & file) const override;
 
 public:
-    TPaskalCompiler(path_t const & path);
+    TPascalCompiler(path_t const & path);
 };
 
 class TFortranCompiler : public TCompilerBase {
@@ -53,6 +53,20 @@ class TFortranCompiler : public TCompilerBase {
 
 public:
     TFortranCompiler(path_t const & path);
+};
+
+class TDCompiler : public TCompilerBase {
+    std::string CompileHandler(path_t const & file) const override;
+
+public:
+    TDCompiler(path_t const & path);
+};
+
+class TAdaCompiler : public TCompilerBase {
+    std::string CompileHandler(path_t const & file) const override;
+
+public:
+    TAdaCompiler(path_t const & path);
 };
 
 template <class ... Args>
@@ -77,5 +91,6 @@ public:
         return result;
     }
 
+private:
     std::string CompileHandler(path_t const & file) const override { return{}; };
 };
