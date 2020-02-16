@@ -20,54 +20,22 @@ public:
     virtual path_t Compile(path_t const & file) const;
 };
 
-class THaskellCompiler : public TCompilerBase {
-    std::string CompileHandler(path_t const & file) const override;
-
-public:
-    THaskellCompiler(path_t const & path);
+#define DECLARE_COMPILER(name)                                      \
+class T##name##Compiler : public TCompilerBase {                    \
+    std::string CompileHandler(path_t const & file) const override; \
+public:                                                             \
+    T##name##Compiler(path_t const & path);                         \
 };
 
-class TCCompiler : public TCompilerBase {
-    std::string CompileHandler(path_t const & file) const override;
-
-public:
-    TCCompiler(path_t const & path);
-};
-
-class TCPPCompiler : public TCompilerBase {
-    std::string CompileHandler(path_t const & file) const override;
-
-public:
-    TCPPCompiler(path_t const & path);
-};
-
-class TPascalCompiler : public TCompilerBase {
-    std::string CompileHandler(path_t const & file) const override;
-
-public:
-    TPascalCompiler(path_t const & path);
-};
-
-class TFortranCompiler : public TCompilerBase {
-    std::string CompileHandler(path_t const & file) const override;
-
-public:
-    TFortranCompiler(path_t const & path);
-};
-
-class TDCompiler : public TCompilerBase {
-    std::string CompileHandler(path_t const & file) const override;
-
-public:
-    TDCompiler(path_t const & path);
-};
-
-class TAdaCompiler : public TCompilerBase {
-    std::string CompileHandler(path_t const & file) const override;
-
-public:
-    TAdaCompiler(path_t const & path);
-};
+DECLARE_COMPILER(Haskell)
+DECLARE_COMPILER(C)
+DECLARE_COMPILER(CPP)
+DECLARE_COMPILER(Pascal)
+DECLARE_COMPILER(Fortran)
+DECLARE_COMPILER(D)
+DECLARE_COMPILER(Ada)
+DECLARE_COMPILER(OCaml)
+DECLARE_COMPILER(OnlyCopy)
 
 template <class ... Args>
 class TCompilerComposer : public TCompilerBase {

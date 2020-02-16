@@ -53,7 +53,7 @@ int main(int argc, char const *argv[]) {
             switch (LangPrediction(file_name)) {
                 case ELangs::c      : compiler = make_unique<TCompilerComposer<TCCompiler, TCPPCompiler, TDCompiler>>(tmp_dir.path()); break;
                 case ELangs::cpp    : compiler = make_unique<TCompilerComposer<TCPPCompiler, TCCompiler, TDCompiler>>(tmp_dir.path()); break;
-                default: compiler = make_unique<TCompilerComposer<THaskellCompiler, TPascalCompiler, TFortranCompiler, TAdaCompiler, TDCompiler, TCPPCompiler, TCCompiler>>(tmp_dir.path()); break;
+                default: compiler = make_unique<TCompilerComposer<THaskellCompiler, TPascalCompiler, TFortranCompiler, TAdaCompiler, TOCamlCompiler, TDCompiler, TCPPCompiler, TCCompiler, TOnlyCopyCompiler>>(tmp_dir.path()); break;
             }
         }
 

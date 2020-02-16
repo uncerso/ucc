@@ -22,3 +22,6 @@ If you want to compile a file in some language, you have to additionally install
 | Pascal   | fpc      |
 | Fortran  | gfortran |
 | Ada      | gnat     |
+| OCaml    | ocamlc   |
+
+For interpreted languages, such as <code>bash, python, csh, perl</code>, you should have an appropriate interpreter.
