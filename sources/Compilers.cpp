@@ -97,3 +97,20 @@ string TAdaCompiler::CompileHandler(path_t const & file) const {
     auto new_file = MakeSymlink(file, "adb");
     return "gnat make "s + new_file.filename().c_str();
 }
+
+TOCamlCompiler::TOCamlCompiler(path_t const & path) 
+    : TCompilerBase(path / "ocaml")
+{}
+
+string TOCamlCompiler::CompileHandler(path_t const & file) const {
+    auto new_file = MakeSymlink(file, "ml");
+    return "ocamlc "s + new_file.filename().c_str() + " -o "s + Result_file_name;
+}
+
+TOnlyCopyCompiler::TOnlyCopyCompiler(path_t const & path) 
+    : TCompilerBase(path / "copy")
+{}
+
+string TOnlyCopyCompiler::CompileHandler(path_t const & file) const {
+    return "cp \""s + file.c_str() + "\" "s + Result_file_name + " && chmod +x "s + Result_file_name ;
+}
