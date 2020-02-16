@@ -8,7 +8,7 @@ using namespace std;
 namespace fs = filesystem;
 
 enum class ELangs {
-    undef, c, cpp, haskell, pascal, fortran, d
+    undef, c, cpp, python, bash, csh, perl
 };
 
 ELangs LangPrediction(fs::path const & file) {
@@ -22,6 +22,18 @@ ELangs LangPrediction(fs::path const & file) {
 
     if (result.find("C++ source") != string::npos)
         return ELangs::cpp;
+
+    if (result.find("Python script") != string::npos)
+        return ELangs::python;
+
+    if (result.find("Bourne-Again shell script") != string::npos)
+        return ELangs::bash;
+
+    if (result.find("a /usr/bin/sh script") != string::npos)
+        return ELangs::csh;
+
+    if (result.find("Perl script") != string::npos)
+        return ELangs::perl;
 
     return ELangs::undef;
 }
@@ -53,7 +65,11 @@ int main(int argc, char const *argv[]) {
             switch (LangPrediction(file_name)) {
                 case ELangs::c      : compiler = make_unique<TCompilerComposer<TCCompiler, TCPPCompiler, TDCompiler>>(tmp_dir.path()); break;
                 case ELangs::cpp    : compiler = make_unique<TCompilerComposer<TCPPCompiler, TCCompiler, TDCompiler>>(tmp_dir.path()); break;
-                default: compiler = make_unique<TCompilerComposer<THaskellCompiler, TPascalCompiler, TFortranCompiler, TAdaCompiler, TOCamlCompiler, TDCompiler, TCPPCompiler, TCCompiler, TOnlyCopyCompiler>>(tmp_dir.path()); break;
+                case ELangs::bash   : [[fallthrough]];
+                case ELangs::csh    : [[fallthrough]];
+                case ELangs::perl   : [[fallthrough]];
+                case ELangs::python : compiler = make_unique<TOnlyCopyCompiler>(tmp_dir.path());                                       break;
+                default: compiler = make_unique<TCompilerComposer<THaskellCompiler, TPascalCompiler, TFortranCompiler, TAdaCompiler, TOCamlCompiler, TDCompiler, TCPPCompiler, TCCompiler>>(tmp_dir.path()); break;
             }
         }
 
