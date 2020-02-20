@@ -1,5 +1,7 @@
 #pragma once
 #include <filesystem>
+#include <sstream>
+#include <vector>
 
 class TUniqueDir {
     using path_t = std::filesystem::path; 
@@ -19,3 +21,14 @@ public:
     TCWDGuard(path_t const & wishes_path);
     ~TCWDGuard();
 };
+
+template<class T>
+std::string ConvertToString(std::vector<T> const & items) {
+    thread_local static std::stringstream ss;
+    ss.str("");
+    ss << ' ';
+    for (auto const & s : items) 
+        ss << s << ' ';
+    
+    return ss.str();
+}

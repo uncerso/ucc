@@ -1,4 +1,4 @@
-FILES:=sources/source.cpp sources/Utils.cpp sources/Compilers.cpp
+FILES:=sources/source.cpp sources/Utils.cpp sources/Compilers.cpp sources/RunningSubsystem.cpp
 FLAGS:=-std=c++17
 
 build:

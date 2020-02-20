@@ -1,7 +1,11 @@
 #include <iostream>
+#include <filesystem>
+
 using namespace std;
+namespace fs = filesystem;
 
 int main() {
     cout << "Hello C++ world!\n";
+    cout << fs::current_path() << '\n';
     return 0;
 }
