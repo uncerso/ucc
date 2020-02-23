@@ -21,7 +21,11 @@ auto TCompilerBase::MakeSymlinks(vector<path_t> const & files, string_view wishe
         }
 
         auto sym_path = file;
-        sym_path += wishes_extension;
+        for (size_t i = 0; fs::exists(sym_path += wishes_extension); ++i) {
+            sym_path = file;
+            sym_path += std::to_string(i);
+        }
+
         fs::create_symlink(file, sym_path);
         CreatedFiles.push_back(sym_path);
         sym_paths.push_back(move(sym_path));
