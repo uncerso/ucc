@@ -1,4 +1,4 @@
 void main() {
     import std.stdio : writeln;
-    writeln("Hello D World!");
+    writeln("Hello, D World!");
 }

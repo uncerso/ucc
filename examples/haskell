@@ -1,2 +1,2 @@
 import Prelude 
-main = putStrLn "Hello Haskell World!"
+main = putStrLn "Hello, Haskell World!"

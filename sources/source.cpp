@@ -16,7 +16,7 @@ struct {
 
 
 enum class ELangs {
-    undef, c, cpp, python, bash, csh, perl
+    undef, c, cpp, python, bash, csh, perl, tcl
 };
 
 ELangs LangPrediction(fs::path const & file, fs::path const & tmp_dir) {
@@ -41,6 +41,9 @@ ELangs LangPrediction(fs::path const & file, fs::path const & tmp_dir) {
     if (result.find("a /usr/bin/sh script") != string::npos)
         return ELangs::csh;
 
+    if (result.find("Tcl script") != string::npos)
+        return ELangs::tcl;
+
     if (result.find("Perl script") != string::npos)
         return ELangs::perl;
 
@@ -57,6 +60,7 @@ unique_ptr<TCompilerBase> GetCompiler(ELangs lang, fs::path const & tmp_dir) {
             case ELangs::bash   : [[fallthrough]];
             case ELangs::csh    : [[fallthrough]];
             case ELangs::perl   : [[fallthrough]];
+            case ELangs::tcl    : [[fallthrough]];
             case ELangs::python : compiler = make_unique<TOnlyCopyCompiler>(tmp_dir);                                       break;
             default: compiler = make_unique<TCompilerComposer<THaskellCompiler, TPascalCompiler, TFortranCompiler, TAdaCompiler, TOCamlCompiler, TDCompiler, TCPPCompiler, TCCompiler, TLispCompiler>>(tmp_dir); break;
         }
