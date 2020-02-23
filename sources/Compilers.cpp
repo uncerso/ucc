@@ -8,7 +8,7 @@ using namespace std;
 namespace fs = filesystem;
 
 namespace {
-    constexpr auto Result_file_name = "out";
+    constexpr auto Result_file_name = "out.out";
 }
 
 auto TCompilerBase::MakeSymlinks(vector<path_t> const & files, string_view wishes_extension) const -> vector<path_t> {
@@ -29,6 +29,12 @@ auto TCompilerBase::MakeSymlinks(vector<path_t> const & files, string_view wishe
     return sym_paths;
 }
 
+void TCompilerBase::MarkFilesToCleanUp(std::vector<path_t> const & files, std::string_view extension) const {
+    for (auto file : files)
+        CreatedFiles.push_back(file.replace_extension(extension));
+}
+
+
 TCompilerBase::TCompilerBase(path_t && path) 
     : WorkDir(move(path))
 {}
@@ -45,8 +51,8 @@ auto TCompilerBase::Compile(vector<path_t> const & files, bool verbose) const ->
     TCWDGuard cwd_guard(WorkDir.path());
     return_t result;
     auto command = CompileHandler(files) + (verbose ? "" : " &> /dev/null");
-    if (!system(command.c_str())) {
-        result = make_unique<TRunnerBase>(fs::current_path() / Result_file_name);
+    if (!system(command.c_str()) && fs::exists(Result_file_name)) {
+        result = GetRunner(fs::current_path() / Result_file_name);
         PRINT("Success\n");
     } else {
         PRINT("Failed\n");
@@ -56,13 +62,18 @@ auto TCompilerBase::Compile(vector<path_t> const & files, bool verbose) const ->
     #undef PRINT
 }
 
+auto TCompilerBase::GetRunner(path_t const & path) const -> return_t{
+    return make_unique<TRunnerBase>(path);
+}
+
+
 THaskellCompiler::THaskellCompiler(path_t const & path) 
     : TCompilerBase(path / "haskell")
 {}
 
 string THaskellCompiler::CompileHandler(vector<path_t> const & files) const {
     auto new_files = MakeSymlinks(files, ".hs");
-    return "ghc -dynamic -O2 "s + ConvertToString(new_files) + " -o "s + Result_file_name;
+    return "ghc -dynamic -O2 "s + ConvertToString(new_files) + " -outputdir . -o "s + (fs::current_path()/Result_file_name).c_str();
 }
 
 TCCompiler::TCCompiler(path_t const & path) 
@@ -89,7 +100,7 @@ TPascalCompiler::TPascalCompiler(path_t const & path)
 
 string TPascalCompiler::CompileHandler(vector<path_t> const & files) const {
     auto new_files = MakeSymlinks(files, ".pas");
-    return "fpc -O3 "s + ConvertToString(new_files) + " -o" + Result_file_name;
+    return "fpc -O3 "s + ConvertToString(new_files) + " -FU" + fs::current_path().c_str() + " -o" + (fs::current_path()/Result_file_name).c_str();
 }
 
 TFortranCompiler::TFortranCompiler(path_t const & path) 
@@ -125,7 +136,22 @@ TOCamlCompiler::TOCamlCompiler(path_t const & path)
 
 string TOCamlCompiler::CompileHandler(vector<path_t> const & files) const {
     auto new_files = MakeSymlinks(files, ".ml");
+    MarkFilesToCleanUp(new_files, ".cmi");
+    MarkFilesToCleanUp(new_files, ".cmo");
     return "ocamlc "s + ConvertToString(new_files) + " -o "s + Result_file_name;
+}
+
+TLispCompiler::TLispCompiler(path_t const & path) 
+    : TCompilerBase(path / "lisp")
+{}
+
+string TLispCompiler::CompileHandler(vector<path_t> const & files) const {
+    auto new_files = MakeSymlinks(files, ".lisp");
+    return "clisp -c "s + ConvertToString(new_files) + " -o " + Result_file_name;
+}
+
+auto TLispCompiler::GetRunner(path_t const & path) const -> return_t {
+    return make_unique<TLispRunner>(path);
 }
 
 TOnlyCopyCompiler::TOnlyCopyCompiler(path_t const & path) 

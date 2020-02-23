@@ -58,7 +58,7 @@ unique_ptr<TCompilerBase> GetCompiler(ELangs lang, fs::path const & tmp_dir) {
             case ELangs::csh    : [[fallthrough]];
             case ELangs::perl   : [[fallthrough]];
             case ELangs::python : compiler = make_unique<TOnlyCopyCompiler>(tmp_dir);                                       break;
-            default: compiler = make_unique<TCompilerComposer<THaskellCompiler, TPascalCompiler, TFortranCompiler, TAdaCompiler, TOCamlCompiler, TDCompiler, TCPPCompiler, TCCompiler>>(tmp_dir); break;
+            default: compiler = make_unique<TCompilerComposer<THaskellCompiler, TPascalCompiler, TFortranCompiler, TAdaCompiler, TOCamlCompiler, TDCompiler, TCPPCompiler, TCCompiler, TLispCompiler>>(tmp_dir); break;
         }
     }
     return compiler;
@@ -117,6 +117,9 @@ void ConvertToCanonical(vector<fs::path> & files) {
 
 } // namespace
 
+
+#include <thread>
+
 int main(int argc, char const *argv[]) {
     auto files = ParseOpts(argc, argv);
     if (files.empty()) {
@@ -135,10 +138,13 @@ int main(int argc, char const *argv[]) {
 
         auto runner = compiler->Compile(files, opts.Verbose);
 
-        if (runner)
-            runner->Run(opts.RunArgs);
+        if (!runner)
+            return -1;
+
+        runner->Run(opts.RunArgs);
 
     } catch (exception const & e) {
+        cerr << "oops, error, what:\n";
         cerr << e.what() << '\n';
         return -1;
     } catch (...) {

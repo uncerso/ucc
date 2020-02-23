@@ -17,6 +17,8 @@ private:
 protected:
     virtual std::string CompileHandler(std::vector<path_t> const & files) const = 0;
     std::vector<path_t> MakeSymlinks(std::vector<path_t> const & files, std::string_view wishes_extension) const;
+    void MarkFilesToCleanUp(std::vector<path_t> const & files, std::string_view extension) const;
+    virtual return_t GetRunner(path_t const & path) const; 
 public:
     TCompilerBase(path_t && path);
     virtual ~TCompilerBase();
@@ -31,6 +33,14 @@ public:                                                                         
     T##name##Compiler(path_t const & path);                                         \
 };
 
+#define DECLARE_COMPILER_WITH_SPECIAL_RUNNER(name)                                  \
+class T##name##Compiler : public TCompilerBase {                                    \
+    std::string CompileHandler(std::vector<path_t> const & files) const override;   \
+public:                                                                             \
+    T##name##Compiler(path_t const & path);                                         \
+    return_t GetRunner(path_t const & path) const override;                         \
+};
+
 DECLARE_COMPILER(Haskell)
 DECLARE_COMPILER(C)
 DECLARE_COMPILER(CPP)
@@ -40,6 +50,8 @@ DECLARE_COMPILER(D)
 DECLARE_COMPILER(Ada)
 DECLARE_COMPILER(OCaml)
 DECLARE_COMPILER(OnlyCopy)
+
+DECLARE_COMPILER_WITH_SPECIAL_RUNNER(Lisp)
 
 template <class ... Args>
 class TCompilerComposer : public TCompilerBase {

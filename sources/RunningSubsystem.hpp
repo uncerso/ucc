@@ -18,3 +18,12 @@ public:
     
     virtual ~TRunnerBase() = default;
 };
+
+#define DECLARE_RUNNER(name)                                    \
+class T##name##Runner : public TRunnerBase {                    \
+    std::string RunHandler(path_t const & file) const override; \
+public:                                                         \
+    T##name##Runner(path_t const & path);                       \
+};
+
+DECLARE_RUNNER(Lisp)
