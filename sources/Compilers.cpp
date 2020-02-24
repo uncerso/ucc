@@ -122,7 +122,7 @@ TDCompiler::TDCompiler(path_t const & path)
 
 string TDCompiler::CompileHandler(vector<path_t> const & files) const {
     auto new_files = MakeSymlinks(files, ".d");
-    return "dmd -O "s + ConvertToString(new_files) + " -of="s + Result_file_name;
+    return "gdc -O3 "s + ConvertToString(new_files) + " -o "s + Result_file_name;
 }
 
 TAdaCompiler::TAdaCompiler(path_t const & path) 

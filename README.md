@@ -17,7 +17,7 @@ If you want to compile a file in some language, you have to additionally install
 | -------- | -------- |
 | C        | gcc      |
 | C++      | g++      |
-| D        | dmd      |
+| D        | gdc      |
 | Haskell  | ghc      |
 | Pascal   | fpc      |
 | Fortran  | gfortran |
