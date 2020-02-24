@@ -32,19 +32,19 @@ ELangs LangPrediction(fs::path const & file, fs::path const & tmp_dir) {
     if (result.find("C++ source") != string::npos)
         return ELangs::cpp;
 
-    if (result.find("Python script") != string::npos)
+    if (result.find("Python script") != string::npos || result.find("a /usr/bin/python") != string::npos)
         return ELangs::python;
 
-    if (result.find("Bourne-Again shell script") != string::npos)
+    if (result.find("Bourne-Again shell script") != string::npos || result.find("a /usr/bin/bash") != string::npos)
         return ELangs::bash;
 
-    if (result.find("a /usr/bin/sh script") != string::npos)
+    if (result.find("a /usr/bin/sh") != string::npos)
         return ELangs::csh;
 
-    if (result.find("Tcl script") != string::npos)
+    if (result.find("Tcl script") != string::npos || result.find("a /usr/bin/tclsh") != string::npos)
         return ELangs::tcl;
 
-    if (result.find("Perl script") != string::npos)
+    if (result.find("Perl script") != string::npos || result.find("a /usr/bin/perl") != string::npos)
         return ELangs::perl;
 
     return ELangs::undef;
@@ -127,7 +127,7 @@ void ConvertToCanonical(vector<fs::path> & files) {
 int main(int argc, char const *argv[]) {
     auto files = ParseOpts(argc, argv);
     if (files.empty()) {
-        cerr << "using: ucc [-v] file1 file2 ... [--args arg1 arg2 ...]\n";
+        cerr << "using: ./run [-v] source1 source2 ... [--args arg1 arg2 ...]\n";
         return 1; 
     }
 
