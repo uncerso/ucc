@@ -1,2 +1,2 @@
 #!/usr/bin/perl
-print "Hello Perl world!\n";
+print "Hello, Perl world!\n";
